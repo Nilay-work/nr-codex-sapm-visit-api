@@ -1,4 +1,9 @@
-flask
-aiohttp
-protobuf
-pycryptodome
+Flask==2.3.3
+aiohttp==3.8.5
+asyncio==3.4.3
+requests==2.31.0
+protobuf==4.24.4
+urllib3==1.26.18
+click==8.1.7
+itsdangerous==2.1.2
+Werkzeug==2.3.7
