@@ -10,13 +10,14 @@ jobs:
   generate-tokens:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write  # Required for git commit & push
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}  # Use your PAT secret here
+          persist-credentials: true     # Keep token for git operations
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,15 +30,16 @@ jobs:
           pip install httpx requests
 
       - name: Run Token Generator
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          python token_generator.py
+        run: python token_generator.py
 
-      - name: Commit & Push if changed
+      - name: Commit & Push Changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add token_ind.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update IND tokens [$(date)]"
-          git push origin main
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update IND tokens [$(date -u +'%Y-%m-%d %H:%M:%S UTC')]"
+            git push origin main
+          fi
