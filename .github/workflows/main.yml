@@ -1,0 +1,43 @@
+# .github/workflows/token-generator.yml
+name: FreeFire IND Token Generator
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Every 10 minutes
+  workflow_dispatch:      # Manual trigger
+
+jobs:
+  generate-tokens:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx requests
+
+      - name: Run Token Generator
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          python token_generator.py
+
+      - name: Commit & Push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add token_ind.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update IND tokens [$(date)]"
+          git push origin main
