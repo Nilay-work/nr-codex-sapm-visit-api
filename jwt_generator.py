@@ -4,7 +4,6 @@ import asyncio
 import httpx
 import subprocess
 import os
-import requests
 from typing import Dict, Optional
 
 # Settings
