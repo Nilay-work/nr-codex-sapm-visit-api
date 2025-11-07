@@ -1,44 +1,48 @@
-# .github/workflows/token-generator.yml
-name: FreeFire IND Token Generator
+name: 🔄 JWT Token Generator (India Time GMT+5:30)
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Every 10 minutes
-  workflow_dispatch:      # Manual trigger
+    - cron: '0 21,3,9,15 * * *' # 2:30 AM, 8:30 AM, 2:30 PM, 8:30 PM IST
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  generate-tokens:
+  generate-and-commit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Required for git commit & push
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: true  # Enables git push with GITHUB_TOKEN
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: 📦 Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install httpx requests
+          pip install httpx
 
-      - name: Run Token Generator
-        run: python token_generator.py
-
-      - name: Commit & Push Changes
+      - name: ⚙️ Run JWT Token Generator Script
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add token_ind.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
+          echo "🚀 Running token generation script..."
+          python jwt_generator.py
+
+      - name: 📤 Commit & Force Push Token Files
+        env:
+          PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          
+          if ! git diff --cached --quiet; then
+            git commit -m "🔄 Update JWT tokens"
+            git push -f https://x-access-token:${PAT}@github.com/${{ github.repository }}.git main
           else
-            git commit -m "Update IND tokens [$(date -u +'%Y-%m-%d %H:%M:%S UTC')]"
-            git push origin main
+            echo "✨ No changes to commit."
           fi
