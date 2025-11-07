@@ -7,15 +7,13 @@ import os
 import requests
 from typing import Dict, Optional
 
---- Settings ---
-
+# Settings
 RELEASEVERSION = "OB51"
 USERAGENT = "Dalvik/2.1.0 (Linux; U; Android 13; CPH2095 Build/RKQ1.211119.001)"
 BRANCH_NAME = "main"
 API_URL = "https://api.freefireservice.dnc.su/oauth/account:login?data="
 
---- Git Helpers ---
-
+# Git Helpers
 def run_git_command(cmd):
     try:
         result = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -48,8 +46,7 @@ def get_repo_and_filename(region):
     else:
         return "token_bd.json"
 
---- Token Generation ---
-
+# Token Generation
 async def generate_jwt_token(client, uid: str, password: str) -> Optional[Dict]:
     """Generate JWT token using the new API endpoint"""
     try:
@@ -176,8 +173,7 @@ async def generate_tokens_for_region(region):
     print(summary)
     return len(region_tokens)
 
---- Run ---
-
+# Run
 if __name__ == "__main__":
     regions = ["IND", "BD", "NA"]
     total_tokens = 0
